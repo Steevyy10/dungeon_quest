@@ -16,14 +16,19 @@ def main():
             {'name': 'Ailene', 'health': 10, 'inventory': []}
         """
         # TODO: Ask the user for their name using input()
-        # TODO: Initialize a dictionary with keys: "name", "health", and "inventory"
-        # TODO: Return the dictionary
+        name= input("Enter your name: ")
+        print(f"Welcome, {name}, to the Dungeon Quest!")
+        # TODO: Initialize a dictionary with keys: "name", "health", and "inventory" and return the dictionary
+        player = {"name": name, "health": 10, "inventory": []}
+        return player
+        
+
 
 
     def create_treasures():
         """
         Creates a dictionary of treasures, where each treasure has a value.
-
+    
         Returns:
             dict: Example:
                 {
@@ -36,8 +41,16 @@ def main():
         Tip:
             You can customize treasures or randomize the values using random.randint(3, 12).
         """
-        # TODO: Create a dictionary of treasure names and integer values
-        # TODO: Return the dictionary
+        # Create a dictionary of treasure names and integer values
+        treasures = {
+            "gold_coin": random.randint(3, 12),
+            "ruby": random.randint(3, 12),
+            "ancient_scroll": random.randint(3, 12),
+            "emerald": random.randint(3, 12),
+            "silver_ring": random.randint(3, 12)
+        }
+        # Return the dictionary
+        return treasures
 
 
     def display_options(room_number):
@@ -56,38 +69,57 @@ def main():
             4. Quit the game
         """
         # TODO: Print the room number and the 4 menu options listed above
-
+        print(f"You are in room {room_number}.")
+        print("What would you like to do?")
+        print("1. Search for treasure")
+        print("2. Move to next room")
+        print("3. Check health and inventory")
+        print("4. Quit the game")
 
     def search_room(player, treasures):
         """
         Simulates searching the current room.
-
+    
         If the outcome is 'treasure', the player gains an item from treasures.
         If the outcome is 'trap', the player loses 2 health points.
-
+    
         Args:
             player (dict): The player's current stats.
             treasures (dict): Dictionary of available treasures.
-
+    
         Behavior:
             - Randomly choose outcome = "treasure" or "trap"
             - If treasure: choose a random treasure, add to player's inventory,
               and print what was found.
             - If trap: subtract 2 from player's health and print a warning.
         """
-        # TODO: Randomly assign outcome = random.choice(["treasure", "trap"])
-        # TODO: Write an if/else to handle treasure vs trap outcomes
-        # TODO: Update player dictionary accordingly
-        # TODO: Print messages describing what happened
-
+        # Randomly assign outcome
+        outcome = random.choice(["treasure", "trap"])
+        # Handle treasure vs trap outcomes
+        if outcome == "treasure":
+            found_treasure = random.choice(list(treasures.keys()))
+            value = treasures[found_treasure]
+            # Update player dictionary accordingly
+            player["inventory"].append(found_treasure)
+            # Print messages describing what happened
+            print(f"You found a {found_treasure}! It's worth {value} points!")
+            print(f"Your inventory now contains: {player['inventory']}")
+        else:
+            # Trap outcome: subtract health
+            player["health"] -= 2
+            print("Oh no! You triggered a trap and lost 2 health points.")
+            if player["health"] > 0:
+                print(f"Your current health is {player['health']}.")
+            else:
+                print("Your health has dropped to 0 or below.")
 
     def check_status(player):
         """
         Displays the player’s current health and inventory.
-
+    
         Args:
             player (dict): Player stats including health and inventory.
-
+    
         Example Output:
             Health: 8
             Inventory: ruby, gold coin
@@ -95,35 +127,49 @@ def main():
             Health: 10
             Inventory: You have no items yet.
         """
-        # TODO: Print player health
-        # TODO: If the inventory list is not empty, print items joined by commas
-        # TODO: Otherwise print “You have no items yet.”
-
+        # Print player health
+        print(f"Health: {player['health']}")
+        # If the inventory list is not empty, print items joined by commas
+        if player["inventory"]:
+            print("Inventory:", ", ".join(player["inventory"]))
+        else:
+            # Otherwise print “You have no items yet.”
+            print("Inventory: You have no items yet.")
 
     def end_game(player, treasures):
         """
         Ends the game and displays a summary.
-
+    
         Args:
             player (dict): Player stats.
             treasures (dict): Treasure dictionary for item value lookup.
-
+    
         Output:
             Prints player’s final health, inventory contents, and total score value.
         """
-        # TODO: Calculate total score by summing the value of collected treasures
-        # TODO: Print final health, items, and total value
-        # TODO: End with a message like "Game Over! Thanks for playing."
-
+        # Calculate total score by summing the value of collected treasures
+        total_value = 0
+        for item in player["inventory"]:
+            if item in treasures:
+                total_value += treasures[item]
+    
+        # Print final health, items, and total value
+        print("\n--- Game Summary ---")
+        print(f"Health: {player['health']}")
+        if player["inventory"]:
+            print("Inventory:", ", ".join(player["inventory"]))
+        else:
+            print("Inventory: You have no items yet.")
+        print(f"Total treasure value: {total_value}")
 
     def run_game_loop(player, treasures):
         """
         Main game loop that manages the rooms and player decisions.
-
+    
         Args:
             player (dict): Player stats.
             treasures (dict): Treasure dictionary.
-
+    
         Flow:
             - There are 5 rooms (use for loop range(1, 6))
             - Inside each room, use a while loop for player actions:
@@ -133,11 +179,38 @@ def main():
                 4. Quit
             - Health below 1 ends the game early.
         """
-        # TODO: Loop through 5 rooms (1–5)
-        # TODO: Inside each room, prompt player choice using input()
-        # TODO: Use if/elif to handle each choice (1–4)
-        # TODO: Break or return appropriately when player quits or dies
-        # TODO: Call end_game() after all rooms are explored
+        # Loop through 5 rooms (1–5)
+        for room_number in range(1, 6):
+            while True:
+                # Inside each room, prompt player choice using input()
+                display_options(room_number)
+                choice = input("Enter your choice (1-4): ").strip()
+    
+                # Handle each choice (1–4)
+                if choice == "1":
+                    search_room(player, treasures)
+                    if player["health"] < 1:
+                        print("You have no health left! Game over.")
+                        end_game(player, treasures)
+                        return  # End game when player dies
+    
+                elif choice == "2":
+                    print(f"You move from room {room_number} to the next room.")
+                    break  # move to next room
+    
+                elif choice == "3":
+                    check_status(player)
+    
+                elif choice == "4":
+                    print("You chose to quit the game.")
+                    end_game(player, treasures)
+                    return  # End game when player quits
+    
+                else:
+                    print("Invalid choice. Please select 1, 2, 3, or 4.")
+    
+        # Call end_game() after all rooms are explored
+        end_game(player, treasures)
 
 
     # -----------------------------------------------------
